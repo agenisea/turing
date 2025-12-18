@@ -516,19 +516,19 @@ TL;DR: Simplify data fetching with caching and background updates
 <!-- PRIORITY: MEDIUM -->
 ## Modified Files
 
-- **Branch**: feature/new-thing
-- **Uncommitted**: 3 files
+- **Branch**: `<your-current-branch>`
+- **Uncommitted**: N files
 
 ```
-M  src/component.ts
-A  src/new-file.ts
-?? src/untracted.ts
+M  path/to/modified-file.ext
+A  path/to/staged-file.ext
+?? path/to/untracked-file.ext
 ```
 
 ### Recent Commits
 ```
-a1b2c3d feat: Add new component
-d4e5f6a fix: Resolve type error
+<hash> <your most recent commit message>
+<hash> <previous commit message>
 ```
 
 <!-- PRIORITY: LOW -->
