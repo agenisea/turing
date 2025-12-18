@@ -18,7 +18,6 @@
     "hooks",
     "claude-code-plugin"
   ],
-  "hooks": "./hooks/hooks.json",
   "commands": [
     "./commands/turing-save.md",
     "./commands/turing-status.md"
