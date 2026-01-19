@@ -4,7 +4,7 @@
 # Based on Alan Turing's 1936 paper "On Computable Numbers"
 # Runs from project root (CWD is always project directory)
 #
-# VERSION: 1.0 - Priority-based selective restore
+# VERSION: 1.1 - Priority-based selective restore with context.md threads
 #
 # Priority filtering based on source:
 #   startup:        CRITICAL + HIGH only (fresh context, minimal tokens)
@@ -470,6 +470,48 @@ case "$SOURCE" in
         show_adrs ".claude/sessions/$SESSION_ID/adrs.md" "Current Session"
         ;;
 esac
+
+# =============================================================================
+# OPEN THREADS
+# =============================================================================
+
+CONTEXT_FILE=".claude/sessions/context.md"
+if [ -f "$CONTEXT_FILE" ]; then
+    THREADS=$(python3 << 'PYEOF'
+import re
+import os
+
+context_file = ".claude/sessions/context.md"
+if not os.path.exists(context_file):
+    exit(0)
+
+try:
+    with open(context_file, 'r') as f:
+        content = f.read()
+
+    # Parse threads section - only open (unchecked) threads
+    threads_match = re.search(r'## Threads\n(.*?)(?=\n## |\Z)', content, re.DOTALL)
+    if threads_match:
+        for line in threads_match.group(1).strip().split('\n'):
+            line = line.strip()
+            if line.startswith('- [ ]'):
+                print(line)
+except:
+    pass
+PYEOF
+)
+
+    if [ -n "$THREADS" ]; then
+        echo ""
+        echo "---"
+        echo ""
+        echo "## Open Threads"
+        echo ""
+        echo "$THREADS"
+        echo ""
+        echo "_Mark completed with \`- [x]\` in \`.claude/sessions/context.md\`_"
+    fi
+fi
 
 # =============================================================================
 # GIT CONTEXT

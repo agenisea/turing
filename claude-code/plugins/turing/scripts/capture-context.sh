@@ -2,7 +2,7 @@
 # capture-context.sh - Capture and persist session state before compaction
 # Part of TURING - Autonomous State Machine for Cognitive Continuity
 # Based on Alan Turing's 1936 paper "On Computable Numbers"
-# Version: 1.0 - With validation, token tracking, auto-decisions, and priorities
+# Version: 1.1 - With validation, token tracking, auto-decisions, priorities, and context.md
 
 set -e
 
@@ -171,7 +171,7 @@ PRE_TOKEN_ESTIMATE=0
 {
     # YAML frontmatter for machine parsing (checksum added post-write)
     echo "---"
-    echo "version: 1.0"
+    echo "version: 1.1"
     echo "session_id: $SESSION_ID"
     echo "tty: $TTY"
     echo "captured_at: $TIMESTAMP"
@@ -512,9 +512,107 @@ if os.path.exists(metadata_file):
 PYEOF
 
 # =============================================================================
+# CONTEXT.MD: Threads + Journal
+# =============================================================================
+CONTEXT_FILE=".claude/sessions/context.md"
+export TURING_CONTEXT_FILE="$CONTEXT_FILE"
+export TURING_UNCOMMITTED="$UNCOMMITTED"
+
+python3 << 'PYEOF'
+import os
+import re
+from datetime import datetime
+
+context_file = os.environ.get("TURING_CONTEXT_FILE", "")
+session_id = os.environ.get("TURING_SESSION_ID", "")
+uncommitted = os.environ.get("TURING_UNCOMMITTED", "0")
+
+if not context_file:
+    exit(0)
+
+now = datetime.now().strftime("%Y-%m-%d %H:%M")
+date_only = datetime.now().strftime("%Y-%m-%d")
+
+# Ensure directory exists
+os.makedirs(os.path.dirname(context_file), exist_ok=True)
+
+# Load existing or create new
+threads = []
+journal_rows = []
+
+if os.path.exists(context_file):
+    try:
+        with open(context_file, 'r') as f:
+            content = f.read()
+
+        # Parse threads section
+        threads_match = re.search(r'## Threads\n(.*?)(?=\n## |\Z)', content, re.DOTALL)
+        if threads_match:
+            for line in threads_match.group(1).strip().split('\n'):
+                line = line.strip()
+                if line.startswith('- ['):
+                    threads.append(line)
+
+        # Parse journal section (preserve existing rows)
+        journal_match = re.search(r'\| Date \| Session \| Files \| Summary \|\n\|[-|]+\|\n(.*?)(?=\n\n|\Z)', content, re.DOTALL)
+        if journal_match:
+            for line in journal_match.group(1).strip().split('\n'):
+                if line.startswith('|') and not line.startswith('|---'):
+                    journal_rows.append(line)
+    except:
+        pass
+
+# Keep only open threads (unchecked), max 5, newest first
+open_threads = [t for t in threads if '- [ ]' in t][-5:]
+
+# Add new journal entry (prepend - newest first)
+try:
+    files_count = int(uncommitted) if uncommitted else 0
+except:
+    files_count = 0
+
+# Generate summary from session context
+summary = "Session compacted"
+session_dir = os.environ.get("TURING_SESSION_DIR", "")
+if session_dir:
+    state_file = os.path.join(session_dir, "state.md")
+    if os.path.exists(state_file):
+        try:
+            with open(state_file, 'r') as f:
+                state_content = f.read()
+            # Try to extract focus for summary
+            focus_match = re.search(r'## Active Focus\n\n([^\n_#]+)', state_content)
+            if focus_match:
+                summary = focus_match.group(1).strip()[:50]
+        except:
+            pass
+
+new_journal_row = f"| {now} | {session_id[:8]} | {files_count} | {summary} |"
+journal_rows = [new_journal_row] + journal_rows
+
+# Write context.md
+with open(context_file, 'w') as f:
+    f.write("# TURING Context\n\n")
+
+    f.write("## Threads\n\n")
+    if open_threads:
+        for t in open_threads:
+            f.write(f"{t}\n")
+    else:
+        f.write("_No open threads._\n")
+    f.write("\n")
+
+    f.write("## Journal\n\n")
+    f.write("| Date | Session | Files | Summary |\n")
+    f.write("|------|---------|-------|---------|\n")
+    for row in journal_rows[:50]:  # Keep last 50 entries
+        f.write(f"{row}\n")
+PYEOF
+
+# =============================================================================
 # OUTPUT
 # =============================================================================
-echo "# [TURING] State Preserved (v1.0)"
+echo "# [TURING] State Preserved (v1.1)"
 echo ""
 echo "**Session**: $SESSION_ID"
 echo "**TTY**: $TTY"

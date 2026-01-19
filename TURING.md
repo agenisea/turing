@@ -7,7 +7,7 @@
 
 TURING is a Claude Code plugin that preserves session state across context compaction events, enabling cognitive continuity for long-running AI-assisted development sessions.
 
-**Version 1.0** — Priority-based selective restore, token budget tracking, auto decision extraction, and state archiving.
+**Version 1.1** — Priority-based selective restore, token budget tracking, auto decision extraction, state archiving, and open threads.
 
 ## Table of Contents
 
@@ -175,6 +175,20 @@ Automatically extracts decisions from the conversation transcript:
 - "chose [option] over [alternative]"
 - "implemented [feature]"
 
+### Open Threads
+
+Track open work items across sessions via `.claude/sessions/context.md`:
+
+```markdown
+## Threads
+- [ ] Add rate limiting (2026-01-19)
+- [ ] Review caching strategy (2026-01-19)
+```
+
+- Max 5 open threads displayed on restore (~100 tokens)
+- Completed `[x]` threads auto-pruned
+- Session journal logged but never restored (write-only)
+
 ### State Decay & Archiving
 
 Previous states are automatically archived before overwrite:
@@ -196,7 +210,7 @@ State files now include machine-parseable YAML frontmatter:
 
 ```yaml
 ---
-version: 1.0
+version: 1.1
 session_id: abc123-def456
 tty: /dev/ttys001
 captured_at: 2025-12-17T15:30:00Z
@@ -258,6 +272,7 @@ project-root/
 └── .claude/
     └── sessions/
         ├── index.json                    # Session registry for fast lookup
+        ├── context.md                    # Open threads + session journal
         ├── .latest                       # Backwards-compat marker
         ├── {session_id_1}/
         │   ├── state.md                  # Standard Description (S.D.)
@@ -480,7 +495,7 @@ return max(sessions, key=lambda s: s['last_compacted_at'])
 
 ```markdown
 ---
-version: 1.0
+version: 1.1
 session_id: abc123-def456
 tty: /dev/ttys001
 captured_at: 2025-12-17T15:30:00Z
@@ -613,6 +628,26 @@ Enable `strict: true` in tsconfig.json...
 ### Trade-offs
 - More verbose type annotations required
 ```
+
+### context.md (Threads + Journal)
+
+```markdown
+# TURING Context
+
+## Threads
+
+- [ ] Add rate limiting (2026-01-19)
+- [x] Implement auth flow (2026-01-18)
+
+## Journal
+
+| Date | Session | Files | Summary |
+|------|---------|-------|---------|
+| 2026-01-19 16:45 | abc123 | 3 | Added unit tests |
+```
+
+- **Threads**: Restored on session start (max 5 open)
+- **Journal**: Write-only historical log (never restored)
 
 ---
 

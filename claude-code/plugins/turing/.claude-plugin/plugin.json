@@ -1,6 +1,6 @@
 {
   "name": "turing",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Autonomous state machine for cognitive continuity. Preserves session state before context compaction and restores it on session start. Features priority-based selective restore, token budget tracking, auto decision extraction, and state archiving. Based on Alan Turing's 1936 paper 'On Computable Numbers'.",
   "author": {
     "name": "Patrick Peña"

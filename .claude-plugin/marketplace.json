@@ -5,7 +5,7 @@
   },
   "metadata": {
     "description": "TURING — Autonomous State Machine for Cognitive Continuity. A Claude Code plugin by Agenisea AI™.",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "repository": "https://github.com/agenisea/turing"
   },
   "plugins": [
@@ -13,7 +13,7 @@
       "name": "turing",
       "source": "./claude-code/plugins/turing",
       "description": "Autonomous state machine for cognitive continuity. Preserves session state before context compaction and restores it on session start. Features priority-based selective restore, token budget tracking, auto decision extraction, and state archiving. Based on Alan Turing's 1936 paper 'On Computable Numbers'.",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "author": {
         "name": "Patrick Peña"
       },

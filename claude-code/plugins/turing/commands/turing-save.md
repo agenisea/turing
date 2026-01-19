@@ -33,7 +33,8 @@ The user has invoked `/turing-save` to manually preserve session state and recor
 1. **Analyze the current session** — Review what was discussed, decided, and accomplished
 2. **Create/update session state** — Write to `.claude/sessions/{session_id}/state.md`
 3. **Record ADRs** — For any architecturally significant decisions, append to `.claude/sessions/{session_id}/adrs.md`
-4. **Update the marker** — Write the session ID to `.claude/sessions/.latest`
+4. **Update context** — Update `.claude/sessions/context.md` (threads + journal)
+5. **Update the marker** — Write the session ID to `.claude/sessions/.latest`
 
 ## Session State Format (S.D.)
 
@@ -129,6 +130,31 @@ TL;DR: [One-line summary of the decision and its primary impact]
 - [cost or risk]
 ```
 
+## Context Format (context.md)
+
+Update `.claude/sessions/context.md` with threads and journal:
+
+```markdown
+# TURING Context
+
+## Threads
+
+- [ ] Open item description (YYYY-MM-DD)
+- [x] Completed item (YYYY-MM-DD)
+
+## Journal
+
+| Date | Session | Files | Summary |
+|------|---------|-------|---------|
+| YYYY-MM-DD HH:MM | session_id | N | One-line summary |
+```
+
+**Rules:**
+- Keep max 5 open threads (drop oldest if overflow)
+- Mark completed items with `[x]`
+- Prepend new journal entry (newest first)
+- Ask user: "Any open threads to track?" before saving
+
 ## Completion
 
 After saving state, output:
@@ -139,6 +165,8 @@ Session ID: {session_id}
 S.D. written to: .claude/sessions/{session_id}/state.md
 ADRs written to: .claude/sessions/{session_id}/adrs.md
 ADRs recorded: [count or "none"]
+Context updated: .claude/sessions/context.md
+Open threads: [count]
 Marker updated: .claude/sessions/.latest
 ```
 

@@ -209,6 +209,24 @@ PYEOF
                 done
             fi
         fi
+
+        # Show context.md (threads + journal)
+        CONTEXT_FILE="$SESSIONS_DIR/context.md"
+        if [ -f "$CONTEXT_FILE" ]; then
+            echo ""
+            echo "### Open Threads"
+            echo ""
+            THREADS=$(grep -E '^\- \[ \]' "$CONTEXT_FILE" 2>/dev/null || true)
+            if [ -n "$THREADS" ]; then
+                echo "$THREADS"
+            else
+                echo "_No open threads._"
+            fi
+
+            JOURNAL_COUNT=$(grep -cE '^\| [0-9]{4}-' "$CONTEXT_FILE" 2>/dev/null || echo "0")
+            echo ""
+            echo "### Journal Entries: $JOURNAL_COUNT"
+        fi
     fi
 }
 

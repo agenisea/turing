@@ -41,7 +41,7 @@ Create or update `.claude/sessions/{session_id}/state.md` with this structure:
 
 ```markdown
 # Session State — Standard Description (S.D.)
-<!-- Turing State Machine Format v1.0 -->
+<!-- Turing State Machine Format v1.1 -->
 <!-- Last transition: [MMDDYYYY HH:MM:SS] -->
 <!-- M-configuration: COMPACTING -->
 

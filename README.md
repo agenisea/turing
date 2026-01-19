@@ -44,6 +44,7 @@ TURING automatically captures session state **before** compaction and restores i
 | **Priority-Based Restore** | CRITICAL/HIGH/MEDIUM/LOW/ARCHIVE levels for token efficiency |
 | **Token Budget Tracking** | Estimates context consumption, warns when state is bloated |
 | **Auto Decision Extraction** | Extracts decisions from transcript ("decided to...", "going with...") |
+| **Open Threads** | Track open work items across sessions (~100 tokens) |
 | **State Archiving** | Previous states archived before overwrite |
 | **TTY-Based Session Discovery** | Multiple terminals maintain independent state |
 | **ADR Recording** | Architecture Decision Records with TL;DR summaries |
